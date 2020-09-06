@@ -38,9 +38,14 @@ module MAL
       tail&.each(&block)
       block.call(head)
     end
+
+    def self.empty
+      EmptyList.new
+    end
   end
 
-  # Empty immutable single-linked list
+  # Empty immutable single-linked list. This class is private, use it through
+  # `List.empty`.
   class EmptyList
     include Enumerable
 

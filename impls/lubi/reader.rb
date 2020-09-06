@@ -83,7 +83,7 @@ class Reader
 
   def read_list(tokens, right_pair)
     tokens.next # consume left pair
-    result = MAL::EmptyList.new
+    result = MAL::List.empty
     while (token = read_form(tokens)) != right_pair
       result = result << token
     end
