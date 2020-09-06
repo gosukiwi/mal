@@ -8,8 +8,10 @@ def pr_str(node)
     ":#{node}"
   when String
     "\"#{node}\""
-  when Array
+  when MAL::List
     "(#{node.map { |item| pr_str(item) }.join(' ')})"
+  when MAL::EmptyList
+    '()'
   else
     node
   end

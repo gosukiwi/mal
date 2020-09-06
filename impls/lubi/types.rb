@@ -17,4 +17,39 @@ module MAL
       false
     end
   end
+
+  # Immutable single-linked list
+  class List
+    include Enumerable
+
+    attr_reader :head, :tail
+    def initialize(head = nil, tail = nil)
+      @head = head
+      @tail = tail
+    end
+
+    def <<(value)
+      List.new(value, self)
+    end
+
+    def each(&block)
+      return to_enum(:each) unless block_given?
+
+      tail&.each(&block)
+      block.call(head)
+    end
+  end
+
+  # Empty immutable single-linked list
+  class EmptyList
+    include Enumerable
+
+    def <<(value)
+      List.new(value)
+    end
+
+    def each(&block)
+      to_enum(:each) unless block_given?
+    end
+  end
 end

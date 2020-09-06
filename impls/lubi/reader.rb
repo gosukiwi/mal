@@ -83,16 +83,16 @@ class Reader
 
   def read_list(tokens, right_pair)
     tokens.next # consume left pair
-    result = []
+    result = MAL::EmptyList.new
     while (token = read_form(tokens)) != right_pair
-      result << token
+      result = result << token
     end
     result
   end
 
   def read_macro(tokens, macro)
     tokens.next # consume first
-    [MAL::Symbol.new(macro)] << read_form(tokens)
+    MAL::List.new(MAL::Symbol.new(macro)) << read_form(tokens)
   end
 
   def read_atom(tokens)
