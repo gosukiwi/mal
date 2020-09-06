@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    io-console (0.5.6)
+    readline (0.0.2)
+      reline
+    reline (0.1.4)
+      io-console (~> 0.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  readline!
+
+BUNDLED WITH
+   2.1.4
