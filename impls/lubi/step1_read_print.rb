@@ -23,9 +23,9 @@ end
 def rep(input)
   _print(_eval(read(input)))
 rescue UnexpectedEOF
-  'Unexpected EOF.'
+  'Reader Error: Unexpected EOF.'
 rescue InvalidTokenError
-  'Unexpected EOF.'
+  'Tokenizer Error: Unexpected EOF.'
 end
 
 while buf = Readline.readline('user> ', true)

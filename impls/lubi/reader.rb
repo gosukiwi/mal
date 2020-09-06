@@ -6,7 +6,7 @@ class Tokenizer
     IGNORE: /^[\s,]+|;.*?(?:\n|$)/,
     FLOAT: /^[0-9]+\.[0-9]+/,
     INTEGER: /^[0-9]+/,
-    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_]+|[\[\]{}()'`~^@])},
+    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^])},
     KEYWORD: %r{^:[+-/*^a-zA-Z0-9_]+}
   }.freeze
 
@@ -61,10 +61,16 @@ class Reader
   private
 
   def read_form(tokens)
-    # return read_list(tokens) if tokens.peek.is_a?(MAL::Symbol) && tokens.peek == '('
     if tokens.peek.is_a?(MAL::Symbol)
+      # try for pair
       right_pair = Pair.for(tokens.peek)
       return read_list(tokens, right_pair) unless right_pair.nil?
+
+      # try for reader macros
+      return read_macro(tokens, 'quote') if tokens.peek == "'"
+      return read_macro(tokens, 'quasiquote') if tokens.peek == '`'
+      return read_macro(tokens, 'unquote') if tokens.peek == '~'
+      return read_macro(tokens, 'splice-unquote') if tokens.peek == '~@'
     end
 
     read_atom(tokens)
@@ -81,6 +87,11 @@ class Reader
     result
   end
 
+  def read_macro(tokens, macro)
+    tokens.next # consume first
+    [MAL::Symbol.new(macro)] << read_form(tokens)
+  end
+
   def read_atom(tokens)
     tokens.next
   end
@@ -88,10 +99,10 @@ end
 
 class Pair
   PAIRS = [
-    %w[(  )],
-    %w[[  ]],
-    %w[{  }]
-  ]
+    %w[( )],
+    %w[[ ]],
+    %w[{ }]
+  ].freeze
 
   def self.for(string)
     PAIRS.each do |pair|
