@@ -2,8 +2,8 @@
 
 class Tokenizer
   TOKENS = {
+    IGNORE: /^(?:[\s,]+|;.*?(?:\n|$))/,
     STRING: /^"(?:\\.|[^\\"])*?"/,
-    IGNORE: /^[\s,]+|;.*?(?:\n|$)/,
     FLOAT: /^[0-9]+\.[0-9]+/,
     INTEGER: /^[0-9]+/,
     SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^])},
@@ -55,7 +55,10 @@ class Reader
   end
 
   def read(str)
-    read_form tokenizer.(str)
+    tokens = tokenizer.(str)
+    return nil unless tokens.any?
+
+    read_form tokens
   end
 
   private
