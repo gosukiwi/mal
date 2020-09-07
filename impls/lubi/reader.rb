@@ -4,8 +4,8 @@ class Tokenizer
   TOKENS = {
     IGNORE: /^(?:[\s,]+|;.*?(?:\n|$))/,
     STRING: /^"(?:\\.|[^\\"])*?"/,
-    FLOAT: /^[0-9]+\.[0-9]+/,
-    INTEGER: /^[0-9]+/,
+    FLOAT: /^-?[0-9]+\.[0-9]+/,
+    INTEGER: /^-?[0-9]+/,
     SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^@])},
     KEYWORD: %r{^:[+-/*^a-zA-Z0-9_]+}
   }.freeze
