@@ -6,7 +6,7 @@ class Tokenizer
     STRING: /^"(?:\\.|[^\\"])*?"/,
     FLOAT: /^[0-9]+\.[0-9]+/,
     INTEGER: /^[0-9]+/,
-    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^])},
+    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^@])},
     KEYWORD: %r{^:[+-/*^a-zA-Z0-9_]+}
   }.freeze
 
@@ -65,15 +65,16 @@ class Reader
 
   def read_form(tokens)
     if tokens.peek.is_a?(MAL::Symbol)
-      # try for pair
-      right_pair = Pair.for(tokens.peek)
-      return read_list(tokens, right_pair) unless right_pair.nil?
-
-      # try for reader macros
+      # data structures
+      return read_list(tokens) if tokens.peek == '('
+      return read_vector(tokens) if tokens.peek == '['
+      return read_hash(tokens) if tokens.peek == '{'
+      # reader macros
       return read_macro(tokens, 'quote') if tokens.peek == "'"
       return read_macro(tokens, 'quasiquote') if tokens.peek == '`'
       return read_macro(tokens, 'unquote') if tokens.peek == '~'
       return read_macro(tokens, 'splice-unquote') if tokens.peek == '~@'
+      return read_macro(tokens, 'deref') if tokens.peek == '@'
     end
 
     read_atom(tokens)
@@ -81,10 +82,36 @@ class Reader
     raise UnexpectedEOF
   end
 
-  def read_list(tokens, right_pair)
-    tokens.next # consume left pair
+  def read_hash(tokens)
+    tokens.next # consume {
+    result = {}
+    i = 0
+    last_key = nil
+    while (token = read_form(tokens)) != '}'
+      if (i % 2).zero?
+        result[token] = nil
+        last_key = token
+      else
+        result[last_key] = token
+      end
+      i += 1
+    end
+    result
+  end
+
+  def read_vector(tokens)
+    tokens.next # consume [
+    result = []
+    while (token = read_form(tokens)) != ']'
+      result << token
+    end
+    result
+  end
+
+  def read_list(tokens)
+    tokens.next # consume (
     result = MAL::List.empty
-    while (token = read_form(tokens)) != right_pair
+    while (token = read_form(tokens)) != ')'
       result = result << token
     end
     result
@@ -97,21 +124,6 @@ class Reader
 
   def read_atom(tokens)
     tokens.next
-  end
-end
-
-class Pair
-  PAIRS = [
-    %w[( )],
-    %w[[ ]],
-    %w[{ }]
-  ].freeze
-
-  def self.for(string)
-    PAIRS.each do |pair|
-      return pair[1] if string == pair[0]
-    end
-    nil
   end
 end
 

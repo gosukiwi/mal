@@ -12,6 +12,12 @@ def pr_str(node)
     "(#{node.map { |item| pr_str(item) }.join(' ')})"
   when MAL::EmptyList
     '()'
+  when Array
+    "[#{node.map { |item| pr_str(item) }.join(' ')}]"
+  when Hash
+    "{#{node.map { |key, value| "#{pr_str(key)} #{pr_str(value)}" }.join(' ')}}"
+  when nil
+    "nil"
   else
     node
   end
