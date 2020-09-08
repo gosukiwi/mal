@@ -29,12 +29,12 @@ class REPL
 
   def read(input)
     reader = Reader.new
-    reader.read(input)
+    reader.(input)
   end
 
   def _eval(ast, env)
-    return ast if ast.is_a?(MAL::EmptyList)
-    return eval_ast(ast, env) unless ast.is_a?(MAL::List)
+    return eval_ast(ast, env) unless ast.is_a?(Hamster::List)
+    return ast if ast.empty?
 
     # apply
     result = eval_ast(ast, env)
@@ -44,7 +44,7 @@ class REPL
   def eval_ast(ast, env)
     case ast
     when MAL::Symbol then env.fetch(ast.name) { raise InvalidSymbolError, "Could not find symbol: #{ast.name}" }
-    when MAL::List then ast.map { |node| _eval(node, env) } # TODO: Return List instead of Array?
+    when Hamster::List then ast.map { |node| _eval(node, env) } # TODO: Return List instead of Array?
     when Array then ast.map { |node| _eval(node, env) }
     when Hash then ast.map { |key, node| [key, _eval(node, env)] }.to_h
     else

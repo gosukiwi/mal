@@ -54,7 +54,7 @@ class Reader
     @tokenizer = Tokenizer.new
   end
 
-  def read(str)
+  def call(str)
     tokens = tokenizer.(str)
     return nil unless tokens.any?
 

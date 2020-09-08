@@ -9,7 +9,7 @@ require_relative 'printer'
 
 def read(input)
   reader = Reader.new
-  reader.read(input)
+  reader.(input)
 end
 
 def _eval(input)

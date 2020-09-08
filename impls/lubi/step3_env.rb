@@ -9,8 +9,9 @@ require_relative 'printer'
 require_relative 'env'
 
 class REPL
-  attr_reader :env
+  attr_reader :env, :reader
   def initialize
+    @reader = Reader.new
     @env = Env.new
     @env.set '+', ->(a, b) { a + b }
     @env.set '-', ->(a, b) { a - b }
@@ -27,7 +28,7 @@ class REPL
   private
 
   def rep(input)
-    _print(_eval(read(input), env))
+    stringify(evaluate(read(input), env))
   rescue UnexpectedEOF
     'Reader Error: Unexpected EOF.'
   rescue InvalidTokenError
@@ -37,11 +38,10 @@ class REPL
   end
 
   def read(input)
-    reader = Reader.new
-    reader.read(input)
+    reader.(input)
   end
 
-  def _eval(ast, env)
+  def evaluate(ast, env)
     return eval_ast(ast, env) unless ast.is_a?(Hamster::List)
     return ast if ast.empty?
 
@@ -51,16 +51,16 @@ class REPL
   def apply(list, env)
     if list.head.is_a?(MAL::Symbol)
       # def!
-      return env.set(list[1].name, _eval(list[2], env)) if list.head.name == 'def!'
+      return env.set(list[1].name, evaluate(list[2], env)) if list.head.name == 'def!'
 
       # let*
       if list.head.name == 'let*'
         scope = Env.new(env)
         list[1].each_slice(2) do |cons|
-          scope.set(cons[0].name, _eval(cons[1], scope))
+          scope.set(cons[0].name, evaluate(cons[1], scope))
         end
 
-        return _eval(list[2], scope)
+        return evaluate(list[2], scope)
       end
     end
 
@@ -72,15 +72,15 @@ class REPL
   def eval_ast(ast, env)
     case ast
     when MAL::Symbol then env.get(ast.name)
-    when Hamster::List then ast.map { |node| _eval(node, env) } # TODO: Return List instead of Array?
-    when Array then ast.map { |node| _eval(node, env) }
-    when Hash then ast.map { |key, node| [key, _eval(node, env)] }.to_h
+    when Hamster::List then ast.map { |node| evaluate(node, env) } # TODO: Return List instead of Array?
+    when Array then ast.map { |node| evaluate(node, env) }
+    when Hash then ast.map { |key, node| [key, evaluate(node, env)] }.to_h
     else
       ast
     end
   end
 
-  def _print(input)
+  def stringify(input)
     pr_str(input)
   end
 end
