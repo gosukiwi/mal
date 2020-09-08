@@ -6,8 +6,8 @@ class Tokenizer
     STRING: /^"(?:\\.|[^\\"])*?"/,
     FLOAT: /^-?[0-9]+\.[0-9]+/,
     INTEGER: /^-?[0-9]+/,
-    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>]+|~@|[\[\]{}()'`~^@])},
-    KEYWORD: %r{^:[+-/*^a-zA-Z0-9_]+}
+    SYMBOL: %r{^(?:[+-/*^a-zA-Z0-9_<>!?]+|~@|[\[\]{}()'`~^@!?])},
+    KEYWORD: %r{^:[+-/*^a-zA-Z0-9_!?]+}
   }.freeze
 
   def call(input)
@@ -110,7 +110,7 @@ class Reader
 
   def read_list(tokens)
     tokens.next # consume (
-    result = MAL::List.empty
+    result = Hamster::List[]
     while (token = read_form(tokens)) != ')'
       result = result << token
     end
@@ -119,7 +119,7 @@ class Reader
 
   def read_macro(tokens, macro)
     tokens.next # consume first
-    MAL::List.new(MAL::Symbol.new(macro)) << read_form(tokens)
+    Hamster::List[MAL::Symbol.new(macro)] << read_form(tokens)
   end
 
   def read_atom(tokens)

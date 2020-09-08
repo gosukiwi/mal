@@ -8,10 +8,8 @@ def pr_str(node)
     ":#{node}"
   when String
     "\"#{node}\""
-  when MAL::List
+  when Hamster::List
     "(#{node.map { |item| pr_str(item) }.join(' ')})"
-  when MAL::EmptyList
-    '()'
   when Array
     "[#{node.map { |item| pr_str(item) }.join(' ')}]"
   when Hash
